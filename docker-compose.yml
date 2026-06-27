@@ -22,6 +22,10 @@ services:
     restart: unless-stopped
     environment:
       VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+      # Vite runs inside this container; reach the API via the host-mapped port.
+      VITE_PROXY_TARGET: ${VITE_PROXY_TARGET:-http://host.docker.internal:3000}
+    extra_hosts:
+      - host.docker.internal:host-gateway
     ports:
       - '${VITE_PORT:-5173}:5173'
     volumes:
