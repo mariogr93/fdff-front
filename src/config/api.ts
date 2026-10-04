@@ -32,18 +32,13 @@ const getBaseUrl = () => {
   return "/api";
 };
 
-const PUBLIC_AUTH_PATHS = ["/auth/login", "/auth/register", "/auth/refresh"];
+const PUBLIC_AUTH_PATHS = ["/auth/login", "/auth/logout", "/auth/register", "/auth/refresh"];
 
 const isPublicAuthRoute = (url?: string) =>
   PUBLIC_AUTH_PATHS.some((path) => url?.includes(path));
 
 const isLoginOrRegisterRoute = (url?: string) =>
-  url?.includes("/auth/login") || url?.includes("/auth/register");
-
-const apiConfig: ApiConfig = {
-  baseURL: getBaseUrl(),
-  timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || "10000", 10),
-};
+  url?.includes("/auth/login") || url?.includes("/auth/register") || url?.includes("/auth/logout");
 
 let isRefreshing = false;
 let failedQueue: QueueItem[] = [];
@@ -138,19 +133,25 @@ const attachResponseInterceptor = (client: AxiosInstance) => {
   );
 };
 
+const apiConfig: ApiConfig = {
+  baseURL: getBaseUrl(),
+  timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || "10000", 10),
+};
+
 const apiClient: AxiosInstance = axios.create({
   ...apiConfig,
   withCredentials: true,
 });
 
-attachRequestInterceptor(apiClient);
-attachResponseInterceptor(apiClient);
 
 export const uploadApiClient: AxiosInstance = axios.create({
   baseURL: getBaseUrl(),
   timeout: 5 * 60 * 1000,
   withCredentials: true,
 });
+
+attachRequestInterceptor(apiClient);
+attachResponseInterceptor(apiClient);
 
 attachRequestInterceptor(uploadApiClient);
 attachResponseInterceptor(uploadApiClient);

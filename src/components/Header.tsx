@@ -3,15 +3,23 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/use-auth";
 import Navbar from "./Navbar";
 import { XIcon, MenuIcon } from "lucide-react";
+import AuthService from "../services/Auth.service";
 
 const Header = () => {
   const navigate = useNavigate();
   const { isAuthenticated, role, clearSession, isBootstrapping } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const handleLogout = () => {
-    clearSession();
-    navigate("/");
+  const handleLogout = async () => {
+
+    try {
+      await AuthService.logout();
+    } catch (error) {
+      console.error("❌ Error in Header.handleLogout", error);
+    } finally {
+      clearSession();
+      navigate("/");
+    } 
   };
 
   return (
