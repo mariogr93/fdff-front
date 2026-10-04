@@ -11,6 +11,7 @@ export interface AuthContextValue {
   accountId: string | null;
   role: string | null;
   isAuthenticated: boolean;
+  isBootstrapping: boolean;
   setSession: (session: AuthSession) => void;
   clearSession: () => void;
 }

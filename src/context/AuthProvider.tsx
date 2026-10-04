@@ -12,10 +12,12 @@ import {
   type SessionRefreshPayload,
 } from "../auth/auth-session.store";
 import { AuthContext, type AuthContextValue, type AuthSession } from "./auth-context";
+import AuthService from "../services/Auth.service";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const [session, setSessionState] = useState<AuthSession | null>(null);
+  const [isBootstrapping, setIsBootstrapping] = useState(true);
 
   const setSession = useCallback((next: AuthSession) => {
     setAccessToken(next.accessToken);
@@ -34,10 +36,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           current
             ? { ...current, accessToken: payload.accessToken }
             : {
-                accessToken: payload.accessToken,
-                accountId: payload.accountId,
-                role: payload.role,
-              }
+              accessToken: payload.accessToken,
+              accountId: payload.accountId,
+              role: payload.role,
+            }
         );
       },
       onAuthFailure: () => {
@@ -48,16 +50,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, [navigate]);
 
+  // Restore session from HttpOnly refresh cookie after a full page reload.
+  // Memory was wiped; the cookie may still be valid.
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const data = await AuthService.refresh();
+        if (!cancelled) {
+          setSession({
+            accessToken: data.accessToken,
+            accountId: data.accountId,
+            role: data.role,
+          });
+        }
+      } catch {
+        // No cookie / expired / network — stay logged out. Do not redirect.
+      } finally {
+        if (!cancelled) {
+          setIsBootstrapping(false);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [setSession]);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       accessToken: session?.accessToken ?? null,
       accountId: session?.accountId ?? null,
       role: session?.role ?? null,
       isAuthenticated: session !== null,
+      isBootstrapping,
       setSession,
       clearSession,
     }),
-    [session, setSession, clearSession]
+    [session, isBootstrapping, setSession, clearSession]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
