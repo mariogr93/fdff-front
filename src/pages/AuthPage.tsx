@@ -4,7 +4,6 @@ import SigninForm from "../components/SigninForm";
 import { useAuth } from "../context/use-auth";
 import AuthService from "../services/Auth.service";
 import type { LoginRequest, RegisterRequest } from "../types/authentication.models";
-import { useState } from "react";
 
 const AuthPage = () => {
   const location = useLocation();
