@@ -1,0 +1,195 @@
+/*
+ * FDFF design tokens — the single source of truth for every visual value.
+ *
+ * Tailwind's @theme generates utilities AND emits these as :root custom
+ * properties, so `bg-canvas` and `var(--color-canvas)` both work. Never put a
+ * raw hex, an off-scale spacing value, or a font name anywhere else.
+ *
+ * Docs: docs/design/tokens.md, typography.md, layout.md
+ */
+
+@theme static {
+  /* ---- Color: surfaces ---------------------------------------------------
+   * Depth comes from surface steps (canvas -> surface -> surface-raised),
+   * not shadows. --shadow-float is the only shadow. */
+  --color-canvas: #0a1029;
+  --color-surface: #121a3a;
+  --color-surface-raised: #1a2450;
+  --color-line: #2a3566;
+
+  /* ---- Color: brand -----------------------------------------------------
+   * Each brand color has exactly one job: red acts, blue locates, gold wins. */
+  --color-brand: #1f2bc2;
+  --color-brand-light: #8b95ff;
+  --color-action: #c8102e;
+  --color-action-hover: #a50d26;
+  --color-gold: #cf9b1a;
+  --color-gold-bright: #e3b341;
+  --color-silver: #c0c7d6;
+  --color-bronze: #c27c4e;
+
+  /* ---- Color: text (all pairs meet WCAG 2.2 AA) ------------------------- */
+  --color-ink: #f4f6fb;
+  --color-ink-muted: #a9b2cc;
+  --color-ink-subtle: #7c87a6;
+  --color-on-action: #ffffff;
+  --color-on-brand: #ffffff;
+  --color-on-gold: #0a1029;
+
+  /* ---- Color: status ----------------------------------------------------
+   * Never color alone: always pair with an icon and a word. */
+  --color-success: #3dd68c;
+  --color-warning: #f5b83d;
+  --color-danger: #e5484d;
+  --color-info: #8b95ff;
+
+  /* ---- Type: families --------------------------------------------------- */
+  --font-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+  --font-body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* ---- Type: sizes -----------------------------------------------------
+   * The paired --text-*--line-height keys are a Tailwind convention: the
+   * text-* utility emits font-size and line-height together, so they cannot
+   * drift apart. Display sizes are fluid between 360px and 1024px. */
+  --text-display-xl: clamp(3rem, 1.5rem + 6vw, 6rem);
+  --text-display-xl--line-height: 0.95;
+  --text-display-l: clamp(2.25rem, 1.4rem + 3.5vw, 4rem);
+  --text-display-l--line-height: 1;
+  --text-display-m: clamp(1.75rem, 1.4rem + 1.5vw, 2.5rem);
+  --text-display-m--line-height: 1.05;
+  --text-score: clamp(1.75rem, 1.5rem + 1vw, 2.25rem);
+  --text-score--line-height: 1;
+  --text-heading: clamp(1.25rem, 1.15rem + 0.4vw, 1.5rem);
+  --text-heading--line-height: 1.3;
+  --text-subheading: 1.125rem;
+  --text-subheading--line-height: 1.4;
+  --text-body: 1rem;
+  --text-body--line-height: 1.55;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.45;
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.4;
+
+  /* ---- Shape ------------------------------------------------------------
+   * Radius signals what kind of element it is, so it is not uniform. These
+   * deliberately override Tailwind's defaults (which are 2/4/6/8px). */
+  --radius-xs: 2px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  /* ---- Elevation -------------------------------------------------------- */
+  --shadow-float: 0 12px 32px rgba(3, 6, 20, 0.55);
+
+  /* ---- Motion ----------------------------------------------------------- */
+  --ease-base: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --motion-fast: 120ms;
+  --motion-base: 200ms;
+  --motion-slow: 320ms;
+
+  /* ---- Layout -----------------------------------------------------------
+   * sm overrides Tailwind's 640px default. md/lg/xl already match the design
+   * at 768/1024/1280. Spacing is Tailwind's default 4px scale, which is
+   * already the design scale: only 1,2,3,4,6,8,12,16,24 may be used. */
+  --breakpoint-sm: 600px;
+  --container-content: 1200px;
+  --spacing-header: 64px;
+  --spacing-sidebar: 240px;
+  --spacing-sidebar-collapsed: 72px;
+  --spacing-touch: 44px;
+}
+
+/* Overlay for text on photographs — the only gradient in the system. */
+@theme static {
+  --overlay-photo: linear-gradient(
+    to top,
+    rgba(10, 16, 41, 0.92) 0%,
+    rgba(10, 16, 41, 0) 60%
+  );
+}
+
+/* ---- Display type -------------------------------------------------------
+ * These carry family + weight + uppercase together, which is too easy to get
+ * wrong by retyping four utilities. Body text uses plain utilities.
+ * Variants work as usual: `display-m md:display-l`. */
+@utility display-xl {
+  font-family: var(--font-display);
+  font-size: var(--text-display-xl);
+  line-height: 0.95;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+@utility display-l {
+  font-family: var(--font-display);
+  font-size: var(--text-display-l);
+  line-height: 1;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+@utility display-m {
+  font-family: var(--font-display);
+  font-size: var(--text-display-m);
+  line-height: 1.05;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+@utility score {
+  font-family: var(--font-display);
+  font-size: var(--text-score);
+  line-height: 1;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tables, scores, measurements, Cédula, countdowns: keep columns aligned. */
+@utility numeric {
+  font-variant-numeric: tabular-nums;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-body);
+    /* Percentage, not px, so the user's browser font-size setting is kept. */
+    font-size: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-size: var(--text-body);
+    line-height: 1.55;
+  }
+
+  /* 16px minimum so mobile Chrome doesn't zoom when a field is focused. */
+  input,
+  select,
+  textarea {
+    font-size: max(16px, var(--text-body));
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand-light);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0ms;
+    --motion-base: 0ms;
+    --motion-slow: 0ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}
