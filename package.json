@@ -8,9 +8,10 @@
     "build": "vite build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "check": "npm run typecheck && npm run lint",
+    "check": "npm run typecheck && npm run lint && npm run lint:tokens",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint:tokens": "node scripts/lint-tokens.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
