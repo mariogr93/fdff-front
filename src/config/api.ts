@@ -138,7 +138,7 @@ const apiConfig: ApiConfig = {
   timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || "10000", 10),
 };
 
-const apiClient: AxiosInstance = axios.create({
+export const apiClient: AxiosInstance = axios.create({
   ...apiConfig,
   withCredentials: true,
 });
@@ -155,5 +155,3 @@ attachResponseInterceptor(apiClient);
 
 attachRequestInterceptor(uploadApiClient);
 attachResponseInterceptor(uploadApiClient);
-
-export default apiClient;

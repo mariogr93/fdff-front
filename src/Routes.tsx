@@ -1,15 +1,15 @@
 import { Route, Routes } from "react-router-dom"
-import App from "./App"
-import EventsPage from "./pages/EventsPage"
-import AthletesPage from "./pages/AthletesPage"
-import RankingsPage from "./pages/RankingsPage"
-import JudgesPage from "./pages/JudgesPage"
-import FederationPage from "./pages/FederationPage"
-import NotFoundPage from "./pages/NotFoundPage"
-import HomePage from "./pages/HomePage"
-import AuthPage from "./pages/AuthPage"
+import { App } from "./App"
+import { EventsPage } from "./pages/EventsPage"
+import { AthletesPage } from "./pages/AthletesPage"
+import { RankingsPage } from "./pages/RankingsPage"
+import { JudgesPage } from "./pages/JudgesPage"
+import { FederationPage } from "./pages/FederationPage"
+import { NotFoundPage } from "./pages/NotFoundPage"
+import { HomePage } from "./pages/HomePage"
+import { AuthPage } from "./pages/AuthPage"
 
-const FDFFRoutes = () => {
+export const FDFFRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<App />}>
@@ -26,5 +26,3 @@ const FDFFRoutes = () => {
     </Routes>
   )
 }
-
-export default FDFFRoutes

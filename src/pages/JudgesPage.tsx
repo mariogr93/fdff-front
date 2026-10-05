@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-const JudgesPage = () => {
+export const JudgesPage = () => {
 
   const navigate = useNavigate();
   return (
@@ -33,5 +33,3 @@ const JudgesPage = () => {
     </div>
   );
 };
-
-export default JudgesPage;

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import UTILS from "../utils/utils";
+import { UTILS } from "../utils/utils";
 import { emailSchema } from "./auth-fields.schema";
 
 const PASSWORD_MIN_LENGTH = 8;

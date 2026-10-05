@@ -15,7 +15,7 @@ interface LoginFormProps {
   onSubmit: (request: LoginRequest) => Promise<void> | void;
 }
 
-const LoginForm = ({ onSubmit }: LoginFormProps) => {
+export const LoginForm = ({ onSubmit }: LoginFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -132,5 +132,3 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
     </form>
   );
 };
-
-export default LoginForm;

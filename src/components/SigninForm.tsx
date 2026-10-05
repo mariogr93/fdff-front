@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
-import UTILS from "../utils/utils";
+import { UTILS } from "../utils/utils";
 import { CATEGORIES_LIST } from "../utils/Categories";
 import {
   signupSchema,
@@ -20,7 +20,7 @@ interface SigninFormProps {
   onRegister: (request: RegisterRequest) => Promise<void> | void;
 }
 
-const SigninForm = ({ onRegister }: SigninFormProps) => {
+export const SigninForm = ({ onRegister }: SigninFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -415,5 +415,3 @@ const SigninForm = ({ onRegister }: SigninFormProps) => {
     </form>
   );
 };
-
-export default SigninForm;

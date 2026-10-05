@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/use-auth";
-import Navbar from "./Navbar";
+import { Navbar } from "./Navbar";
 import { XIcon, MenuIcon } from "lucide-react";
-import AuthService from "../services/Auth.service";
+import { AuthService } from "../services/Auth.service";
 
-const Header = () => {
+export const Header = () => {
   const navigate = useNavigate();
   const { isAuthenticated, role, clearSession, isBootstrapping } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -79,5 +79,3 @@ const Header = () => {
     </header>
   );
 };
-
-export default Header;

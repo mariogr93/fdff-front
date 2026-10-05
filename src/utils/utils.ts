@@ -17,11 +17,8 @@ interface Utils {
     formatPhoneNumber: (value: string) => string;
 }
 
-const UTILS: Utils = {
+export const UTILS: Utils = {
     phoneRegex,
     emailRegex,
     formatPhoneNumber,
 };
-
-
-export default UTILS;

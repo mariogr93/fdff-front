@@ -1,5 +1,5 @@
 import axios from "axios";
-import apiClient from "../config/api";
+import { apiClient } from "../config/api";
 import {
   LoginRequest,
   LoginResponse,
@@ -8,7 +8,7 @@ import {
   RegisterResponse,
 } from "../types/authentication.models";
 
-const AuthService = {
+export const AuthService = {
   login: async (request: LoginRequest): Promise<LoginResponse> => {
     try {
       const response = await apiClient.post("/auth/login", request);
@@ -51,5 +51,3 @@ const AuthService = {
     }
   },
 };
-
-export default AuthService;

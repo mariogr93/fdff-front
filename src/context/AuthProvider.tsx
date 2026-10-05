@@ -12,7 +12,7 @@ import {
   type SessionRefreshPayload,
 } from "../auth/auth-session.store";
 import { AuthContext, type AuthContextValue, type AuthSession } from "./auth-context";
-import AuthService from "../services/Auth.service";
+import { AuthService } from "../services/Auth.service";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();

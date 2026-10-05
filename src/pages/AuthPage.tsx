@@ -1,11 +1,11 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import LoginForm from "../components/LoginForm";
-import SigninForm from "../components/SigninForm";
+import { LoginForm } from "../components/LoginForm";
+import { SigninForm } from "../components/SigninForm";
 import { useAuth } from "../context/use-auth";
-import AuthService from "../services/Auth.service";
+import { AuthService } from "../services/Auth.service";
 import type { LoginRequest, RegisterRequest } from "../types/authentication.models";
 
-const AuthPage = () => {
+export const AuthPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { setSession } = useAuth();
@@ -68,5 +68,3 @@ const AuthPage = () => {
     </div>
   );
 };
-
-export default AuthPage;

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const Navbar = () => {
+export const Navbar = () => {
   return (
     <nav className=" flex justify-between items-center hidden md:block  ">
       <ul className="flex gap-4 items-center justify-center text-gray-100">
@@ -23,5 +23,3 @@ const Navbar = () => {
     </nav>
   );
 };
-
-export default Navbar;
