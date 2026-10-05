@@ -10,8 +10,8 @@ export const Card = ({ children, className = "", onClick }: CardProps) => {
   return (
     <div
       onClick={onClick}
-      className={`overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-300 ${
-        onClick ? "cursor-pointer hover:shadow-md hover:border-gray-200" : ""
+      className={`overflow-hidden rounded-md border border-line bg-surface transition-all duration-300 ease-base ${
+        onClick ? "cursor-pointer hover:bg-surface-raised hover:border-brand" : ""
       } ${className}`}
     >
       {children}
@@ -70,7 +70,7 @@ interface CardBodyProps {
 }
 
 export const CardBody = ({ children, className = "" }: CardBodyProps) => {
-  return <div className={`p-4 pt-2 pb-2 text-gray-700 ${className}`}>{children}</div>;
+  return <div className={`p-4 pt-2 pb-2 text-ink-muted ${className}`}>{children}</div>;
 };
 
 interface CardFooterProps {
@@ -80,7 +80,7 @@ interface CardFooterProps {
 
 export const CardFooter = ({ children, className = "" }: CardFooterProps) => {
   return (
-    <div className={`p-4 pt-2 border-t border-gray-50 bg-gray-50/50 ${className}`}>
+    <div className={`p-4 pt-2 border-t border-line bg-surface-raised ${className}`}>
       {children}
     </div>
   );

@@ -1,7 +1,7 @@
 export const FederationPage = () => {
   return (
     <div>
-        <h1 className='font-bold text-white'>Federacion</h1>
+        <h1 className="display-l text-ink">Federacion</h1>
     </div>
   )
 }

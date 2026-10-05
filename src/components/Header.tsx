@@ -23,8 +23,8 @@ export const Header = () => {
   };
 
   return (
-    <header className="bg-black flex justify-between items-center">
-      <div className="h-15 w-30 text-white text-2xl font-bold bg-red-500 flex items-center justify-center">
+    <header className="bg-canvas flex justify-between items-center">
+      <div className="h-15 w-30 text-on-brand text-heading font-bold bg-brand flex items-center justify-center">
         <Link to="/">FDFF</Link>
       </div>
 
@@ -33,31 +33,31 @@ export const Header = () => {
       <div className="hidden md:block flex gap-4 items-center justify-center">
         {isBootstrapping ? (
           <div className="flex items-center justify-center gap-2">
-            <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse"></div>
+            <div className="w-10 h-10 bg-surface-raised rounded-full animate-pulse"></div>
           </div>
         ) : (
           isAuthenticated ? (
           <div className="flex items-center justify-center gap-2">
             <button
-              className="text-white bg-black border-1 mr-2 border-white w-25 h-10 px-4 py-2 rounded-md hover:bg-gray-800 cursor-pointer"
+              className="text-ink bg-surface border-1 mr-2 border-line w-25 h-10 px-4 py-2 rounded-sm hover:bg-surface-raised cursor-pointer"
               onClick={handleLogout}
             >
-              Logout
+              Cerrar sesión
             </button>
-            <div className="text-white bg-red-500 border-none rounded-xl w-10 h-10 flex items-center justify-center text-xs font-bold">
+            <div className="text-on-brand bg-brand border-none rounded-md w-10 h-10 flex items-center justify-center text-caption font-bold">
               {role?.charAt(0) ?? "U"}
             </div>
           </div>
         ) : (
           <>
             <button
-              className="text-white bg-black mr-2 border-1 border-white w-25 h-10 rounded-md hover:bg-gray-800 cursor-pointer"
+              className="text-ink bg-surface mr-2 border-1 border-line w-25 h-10 rounded-sm hover:bg-surface-raised cursor-pointer"
               onClick={() => navigate("/login")}
             >
-              Login
+              Ingresar
             </button>
             <button
-              className="text-white bg-red-500 mr-2 border-none w-25 h-10 rounded-md hover:bg-red-600 cursor-pointer"
+              className="text-on-action bg-action mr-2 border-none w-25 h-10 rounded-sm hover:bg-action-hover cursor-pointer"
               onClick={() => navigate("/register")}
             >
               Registrarse
@@ -70,9 +70,9 @@ export const Header = () => {
       <div className="block md:hidden w-15 h-15 flex items-center justify-center">
         <button onClick={() => setIsMenuOpen((prev) => !prev)}>
           {isMenuOpen ? (
-            <XIcon className="text-white" />
+            <XIcon className="text-ink" />
           ) : (
-            <MenuIcon className="text-white" />
+            <MenuIcon className="text-ink" />
           )}
         </button>
       </div>
