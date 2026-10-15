@@ -2,8 +2,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { LoginForm } from "../components/LoginForm";
 import { SigninForm } from "../components/SigninForm";
 import { useAuth } from "../context/use-auth";
+import { AccountService } from "../services/Account.service";
 import { AuthService } from "../services/Auth.service";
-import type { LoginRequest, RegisterRequest } from "../types/authentication.models";
+import type {
+  CreateAccountRequest,
+  LoginRequest,
+  RegisterRequest,
+} from "../types/authentication.models";
 
 export const AuthPage = () => {
   const location = useLocation();
@@ -26,6 +31,10 @@ export const AuthPage = () => {
 
   const onRegister = async (request: RegisterRequest) => {
     await AuthService.register(request);
+  };
+
+  const onCreateAccount = async (request: CreateAccountRequest) => {
+    await AccountService.create(request);
   };
 
   return (
@@ -61,7 +70,10 @@ export const AuthPage = () => {
           {showLoginForm ? (
             <LoginForm onSubmit={onLogin} />
           ) : (
-            <SigninForm onRegister={onRegister} />
+            <SigninForm
+              onRegister={onRegister}
+              onCreateAccount={onCreateAccount}
+            />
           )}
         </div>
       </div>

@@ -11,22 +11,30 @@ import {
   type SignupFormValues,
 } from "../schemas/signup.schema";
 import {
+  toCreateAccountRequest,
   toRegisterRequest,
   toSignupProfileDraft,
 } from "../utils/signup.mapper";
-import type { RegisterRequest } from "../types/authentication.models";
+import { useAuth } from "../context/use-auth";
+import type {
+  CreateAccountRequest,
+  RegisterRequest,
+} from "../types/authentication.models";
 
 interface SigninFormProps {
   onRegister: (request: RegisterRequest) => Promise<void> | void;
+  /** Admin only: creates a judge account through `POST /accounts`. */
+  onCreateAccount: (request: CreateAccountRequest) => Promise<void> | void;
 }
 
-export const SigninForm = ({ onRegister }: SigninFormProps) => {
+export const SigninForm = ({ onRegister, onCreateAccount }: SigninFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const navigate = useNavigate();
-  const isAdminUser = false;
+  const { role: sessionRole } = useAuth();
+  const isAdminUser = sessionRole === "ADMIN";
 
   const {
     register,
@@ -63,7 +71,6 @@ export const SigninForm = ({ onRegister }: SigninFormProps) => {
   const onSubmit = async (values: SignupFormOutput) => {
     setSubmitError(null);
 
-    const payload = toRegisterRequest(values);
     const profileDraft = toSignupProfileDraft(values);
 
     if (profileDraft) {
@@ -72,7 +79,12 @@ export const SigninForm = ({ onRegister }: SigninFormProps) => {
     }
 
     try {
-      await onRegister(payload);
+      // Public signup always creates an ATHLETE; only an admin can create a judge.
+      if (isAdminUser && values.role === "JUDGE") {
+        await onCreateAccount(toCreateAccountRequest(values));
+      } else {
+        await onRegister(toRegisterRequest(values));
+      }
     } catch {
       setSubmitError(
         "No se pudo crear la cuenta. Verifique sus datos e intente de nuevo."
@@ -102,27 +114,27 @@ export const SigninForm = ({ onRegister }: SigninFormProps) => {
       noValidate
       className="flex flex-col items-center justify-center gap-2 w-full"
     >
-      <div className="w-full flex flex-col items-center justify-center gap-2">
-        <label
-          className="w-full text-neutral-800 text-lg font-bold"
-          htmlFor="role"
-        >
-          Rol
-        </label>
-        <select
-          className="w-full border-2 border-gray-300 rounded-md p-2 bg-white"
-          id="role"
-          {...register("role")}
-        >
-          <option value="ATHLETE">Atleta/Competidor/Coach</option>
-          <option disabled={!isAdminUser} value="JUDGE">
-            Juez
-          </option>
-        </select>
-        {fieldError("role") && (
-          <p className="w-full text-sm text-red-600">{fieldError("role")}</p>
-        )}
-      </div>
+      {isAdminUser && (
+        <div className="w-full flex flex-col items-center justify-center gap-2">
+          <label
+            className="w-full text-neutral-800 text-lg font-bold"
+            htmlFor="role"
+          >
+            Rol
+          </label>
+          <select
+            className="w-full border-2 border-gray-300 rounded-md p-2 bg-white text-black"
+            id="role"
+            {...register("role")}
+          >
+            <option value="ATHLETE">Atleta/Competidor/Coach</option>
+            <option value="JUDGE">Juez</option>
+          </select>
+          {fieldError("role") && (
+            <p className="w-full text-sm text-red-600">{fieldError("role")}</p>
+          )}
+        </div>
+      )}
 
       <div className="w-full flex flex-col items-center justify-center gap-2">
         <label
@@ -132,7 +144,7 @@ export const SigninForm = ({ onRegister }: SigninFormProps) => {
           Nombre
         </label>
         <input
-          className="w-full border-2 border-gray-300 rounded-md p-2 bg-white"
+          className="w-full border-2 border-gray-300 rounded-md p-2 bg-white text-black"
           type="text"
           id="name"
           autoComplete="given-name"
@@ -152,7 +164,7 @@ export const SigninForm = ({ onRegister }: SigninFormProps) => {
           Apellido
         </label>
         <input
-          className="w-full border-2 border-gray-300 rounded-md p-2 bg-white"
+          className="w-full border-2 border-gray-300 rounded-md p-2 bg-white text-black"
           type="text"
           id="lastname"
           autoComplete="family-name"
@@ -172,7 +184,7 @@ export const SigninForm = ({ onRegister }: SigninFormProps) => {
           Email
         </label>
         <input
-          className="w-full border-2 border-gray-300 rounded-md p-2 bg-white"
+          className="w-full border-2 border-gray-300 rounded-md p-2 bg-white text-black"
           type="email"
           id="email"
           autoComplete="email"
@@ -196,7 +208,7 @@ export const SigninForm = ({ onRegister }: SigninFormProps) => {
           control={control}
           render={({ field }) => (
             <input
-              className="w-full border-2 border-gray-300 rounded-md p-2 bg-white"
+              className="w-full border-2 border-gray-300 rounded-md p-2 bg-white text-black"
               type="tel"
               id="phone"
               autoComplete="tel"
@@ -222,7 +234,7 @@ export const SigninForm = ({ onRegister }: SigninFormProps) => {
           Fecha de nacimiento
         </label>
         <input
-          className="w-full border-2 border-gray-300 rounded-md p-2 bg-white"
+          className="w-full border-2 border-gray-300 rounded-md p-2 bg-white text-black"
           type="date"
           id="birthdate"
           {...register("birthdate")}
@@ -241,7 +253,7 @@ export const SigninForm = ({ onRegister }: SigninFormProps) => {
         </label>
         <div className="relative w-full">
           <input
-            className="w-full border-2 border-gray-300 rounded-md p-2 bg-white pr-10"
+            className="w-full border-2 border-gray-300 rounded-md p-2 bg-white pr-10 text-black"
             type={showPassword ? "text" : "password"}
             id="password"
             autoComplete="new-password"
@@ -276,7 +288,7 @@ export const SigninForm = ({ onRegister }: SigninFormProps) => {
         </label>
         <div className="relative w-full">
           <input
-            className="w-full border-2 border-gray-300 rounded-md p-2 bg-white pr-10"
+            className="w-full border-2 border-gray-300 rounded-md p-2 bg-white pr-10 text-black"
             type={showConfirmPassword ? "text" : "password"}
             id="confirmPassword"
             autoComplete="new-password"
@@ -318,7 +330,7 @@ export const SigninForm = ({ onRegister }: SigninFormProps) => {
               Cédula
             </label>
             <input
-              className="w-full border-2 border-gray-300 rounded-md p-2 bg-white"
+              className="w-full border-2 border-gray-300 rounded-md p-2 bg-white text-black"
               type="text"
               id="cedula"
               inputMode="numeric"
@@ -338,7 +350,7 @@ export const SigninForm = ({ onRegister }: SigninFormProps) => {
               Genero
             </label>
             <select
-              className="w-full border-2 border-gray-300 rounded-md p-2 bg-white"
+              className="w-full border-2 border-gray-300 rounded-md p-2 bg-white text-black"
               id="gender"
               value={gender ?? ""}
               onChange={(e) =>

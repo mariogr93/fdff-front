@@ -62,7 +62,7 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
           Email
         </label>
         <input
-          className="w-full border-2 border-gray-300 rounded-md p-2 bg-white"
+          className="w-full border-2 border-gray-300 rounded-md p-2 bg-white text-black"
           type="email"
           id="email"
           autoComplete="email"
@@ -83,7 +83,7 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
         </label>
         <div className="relative w-full">
           <input
-            className="w-full border-2 border-gray-300 rounded-md p-2 bg-white pr-10"
+            className="w-full border-2 border-gray-300 rounded-md p-2 bg-white pr-10 text-black"
             type={showPassword ? "text" : "password"}
             id="password"
             autoComplete="current-password"
