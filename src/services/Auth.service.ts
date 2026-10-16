@@ -1,5 +1,5 @@
-import axios from "axios";
 import { apiClient } from "../config/api";
+import { parseApiError } from "../config/api-error";
 import {
   LoginRequest,
   LoginResponse,
@@ -42,9 +42,7 @@ export const AuthService = {
       const response = await apiClient.post<RefreshResponse>("/auth/refresh");
       return response.data;
     } catch (error) {
-      const isUnauthorized =
-        axios.isAxiosError(error) && error.response?.status === 401;
-      if (!isUnauthorized) {
+      if (parseApiError(error).statusCode !== 401) {
         console.error("❌ Error in AuthService.refresh", error);
       }
       throw error;
