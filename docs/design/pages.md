@@ -8,13 +8,15 @@
 | `/competencias/:slug/resultados` | Competition results | ✓ | ✓ | ✓ | ✓ |
 | `/inscripcion` | Athlete registration | ✓ | ✓ | ✓ | ✓ |
 | `/ingresar` | Login | ✓ |  |  |  |
+| `/jueces` | Public judges directory | ✓ | ✓ | ✓ | ✓ |
+| `/panel` | Panel home (links to the panel pages) |  |  | ✓ | ✓ |
 | `/panel/competencias` | List & create competitions |  |  | ✓ | ✓ |
 | `/panel/categorias` | List & create categories |  |  | ✓ | ✓ |
 | `/panel/inscripciones` | Approve registrations |  |  | ✓ | ✓ |
 | `/panel/atletas` | Search & edit athletes |  |  | ✓ | ✓ |
-| `/panel/jueces` | Create judge accounts |  |  |  | ✓ |
+| `/panel/jueces` | Manage judge accounts |  |  |  | ✓ |
 
-Route guards hide and block pages by role; the backend enforces the same rules independently.
+Route guards hide and block pages by role; the backend enforces the same rules independently. Panel links appear only for a signed-in judge or admin. A panel URL typed by hand without access redirects: signed out to the login page, signed in without the role to `/`, with no return URL and no hint that the page exists.
 
 ## Landing (public)
 
@@ -77,7 +79,11 @@ Actions: Guardar borrador (secondary), Publicar competencia (primary).
 
 Searchable table (name, cédula, team, coach). Editing opens the registration step 2 form plus an audit line: "Última modificación por Juez X el 03/10/2026".
 
-## Judges (admin only)
+## Judges directory (public, `/jueces`)
+
+Cards of federation judges, visible to anyone: photo, full name, judge rank, years as judge, short bio. Only judges who opted in to the public directory appear (personal data, Law 172-13). Rank values are not decided yet.
+
+## Judges (admin only, `/panel/jueces`)
 
 - Table of judge accounts: name, email, active/inactive, created date.
 - **Crear cuenta de juez:** name and email; a temporary password is generated and shown once with a copy button.
