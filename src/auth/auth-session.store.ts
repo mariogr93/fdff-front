@@ -1,5 +1,8 @@
+import type { AccountRole } from "../types/authentication.models";
+
 /**
  * Volatile in-memory token store for Axios interceptors.
+ * Only src/config and src/auth may read the token; React gets identity only.
  * Intentionally outside React so api.ts does not depend on context.
  */
 let accessToken: string | null = null;
@@ -7,7 +10,7 @@ let accessToken: string | null = null;
 export interface SessionRefreshPayload {
   accessToken: string;
   accountId: string;
-  role: string;
+  role: AccountRole;
 }
 
 export interface AuthLifecycleHandlers {

@@ -7,50 +7,48 @@ import {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  broadcastLogout,
   getAccessToken,
   onLogoutInOtherTab,
   registerAuthLifecycleHandlers,
   setAccessToken,
   type SessionRefreshPayload,
 } from "../auth/auth-session.store";
-import { AuthContext, type AuthContextValue, type AuthSession } from "./auth-context";
+import { AuthContext, type AuthContextValue, type AuthIdentity } from "./auth-context";
 import { AuthService } from "../services/Auth.service";
+import { logApiError } from "../config/api-error";
+import type { LoginRequest, LoginResponse } from "../types/authentication.models";
 
+/**
+ * Owns the session. The access token goes only to the in-memory store used by the
+ * Axios interceptors; React state and the context hold identity (account and role).
+ */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
-  const [session, setSessionState] = useState<AuthSession | null>(null);
+  const [identity, setIdentity] = useState<AuthIdentity | null>(null);
   const [isBootstrapping, setIsBootstrapping] = useState(true);
 
-  const setSession = useCallback((next: AuthSession) => {
-    setAccessToken(next.accessToken);
-    setSessionState(next);
+  const startSession = useCallback((session: LoginResponse) => {
+    setAccessToken(session.accessToken);
+    setIdentity({ accountId: session.accountId, role: session.role });
   }, []);
 
-  const clearSession = useCallback(() => {
+  const endSession = useCallback(() => {
     setAccessToken(null);
-    setSessionState(null);
+    setIdentity(null);
   }, []);
 
   useEffect(() => {
     registerAuthLifecycleHandlers({
       onSessionRefreshed: (payload: SessionRefreshPayload) => {
-        setSessionState((current) =>
-          current
-            ? { ...current, accessToken: payload.accessToken }
-            : {
-              accessToken: payload.accessToken,
-              accountId: payload.accountId,
-              role: payload.role,
-            }
-        );
+        setIdentity({ accountId: payload.accountId, role: payload.role });
       },
       onAuthFailure: () => {
-        setAccessToken(null);
-        setSessionState(null);
+        endSession();
         navigate("/login", { replace: true });
       },
     });
-  }, [navigate]);
+  }, [navigate, endSession]);
 
   // Another tab signed out. Only a tab that had a session is sent to the login page;
   // a signed-out visitor on a public page stays where they are.
@@ -61,11 +59,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        setAccessToken(null);
-        setSessionState(null);
+        endSession();
         navigate("/login", { replace: true });
       }),
-    [navigate]
+    [navigate, endSession]
   );
 
   // Restore session from HttpOnly refresh cookie after a full page reload.
@@ -75,13 +72,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     (async () => {
       try {
-        const data = await AuthService.refresh();
+        const session = await AuthService.refresh();
         if (!cancelled) {
-          setSession({
-            accessToken: data.accessToken,
-            accountId: data.accountId,
-            role: data.role,
-          });
+          startSession(session);
         }
       } catch {
         // No cookie / expired / network — stay logged out. Do not redirect.
@@ -95,19 +88,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [setSession]);
+  }, [startSession]);
+
+  const login = useCallback(
+    async (request: LoginRequest) => {
+      startSession(await AuthService.login(request));
+    },
+    [startSession]
+  );
+
+  const logout = useCallback(async () => {
+    try {
+      await AuthService.logout();
+    } catch (error) {
+      logApiError("logout", error);
+    } finally {
+      endSession();
+      broadcastLogout();
+    }
+  }, [endSession]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
-      accessToken: session?.accessToken ?? null,
-      accountId: session?.accountId ?? null,
-      role: session?.role ?? null,
-      isAuthenticated: session !== null,
+      accountId: identity?.accountId ?? null,
+      role: identity?.role ?? null,
+      isAuthenticated: identity !== null,
       isBootstrapping,
-      setSession,
-      clearSession,
+      login,
+      logout,
     }),
-    [session, isBootstrapping, setSession, clearSession]
+    [identity, isBootstrapping, login, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

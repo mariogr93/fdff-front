@@ -13,19 +13,12 @@ import type {
 export const AuthPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { setSession } = useAuth();
+  const { login } = useAuth();
   const showLoginForm = location.pathname !== "/register";
 
 
   const onLogin = async (request: LoginRequest) => {
-    const response = await AuthService.login(request);
-
-    setSession({
-      accessToken: response.accessToken,
-      accountId: response.accountId,
-      role: response.role,
-    });
-
+    await login(request);
     navigate("/");
   };
 
