@@ -4,6 +4,7 @@ import { useAuth } from "../context/use-auth";
 import { Navbar } from "./Navbar";
 import { XIcon, MenuIcon } from "lucide-react";
 import { AuthService } from "../services/Auth.service";
+import { logApiError } from "../config/api-error";
 import { broadcastLogout } from "../auth/auth-session.store";
 
 export const Header = () => {
@@ -16,7 +17,7 @@ export const Header = () => {
     try {
       await AuthService.logout();
     } catch (error) {
-      console.error("❌ Error in Header.handleLogout", error);
+      logApiError("logout", error);
     } finally {
       clearSession();
       broadcastLogout();

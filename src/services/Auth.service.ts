@@ -1,5 +1,5 @@
 import { apiClient, refreshSession } from "../config/api";
-import { parseApiError } from "../config/api-error";
+import { logApiError, parseApiError } from "../config/api-error";
 import {
   LoginRequest,
   LoginResponse,
@@ -14,7 +14,7 @@ export const AuthService = {
       const response = await apiClient.post("/auth/login", request);
       return response.data;
     } catch (error) {
-      console.error("❌ Error in AuthService.login", error);
+      logApiError("login", error);
       throw error;
     }
   },
@@ -24,7 +24,7 @@ export const AuthService = {
       const response = await apiClient.post("/auth/register", request);
       return response.data;
     } catch (error) {
-      console.error("❌ Error in AuthService.register", error);
+      logApiError("register", error);
       throw error;
     }
   },
@@ -43,7 +43,7 @@ export const AuthService = {
       return await refreshSession();
     } catch (error) {
       if (parseApiError(error).statusCode !== 401) {
-        console.error("❌ Error in AuthService.refresh", error);
+        logApiError("refresh", error);
       }
       throw error;
     }

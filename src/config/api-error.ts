@@ -25,6 +25,25 @@ const readErrorName = (body: unknown): string | null => {
   return typeof body.error === "string" ? body.error : null;
 };
 
+/**
+ * Development-only log of a failed API call: "[context] POST /auth/login → 401 Name".
+ * Never logs bodies, headers, tokens or query strings (they can hold passwords or
+ * personal data). Production builds log nothing.
+ */
+export const logApiError = (context: string, error: unknown): void => {
+  if (!import.meta.env.DEV) {
+    return;
+  }
+
+  const { statusCode, error: errorName, isNetworkError } = parseApiError(error);
+  const config = axios.isAxiosError(error) ? error.config : undefined;
+  const method = config?.method?.toUpperCase() ?? "?";
+  const path = config?.url?.split("?")[0] ?? "?";
+  const outcome = isNetworkError ? "network error" : `${statusCode ?? "?"} ${errorName ?? ""}`;
+
+  console.warn(`[${context}] ${method} ${path} → ${outcome.trim()}`);
+};
+
 export const parseApiError = (error: unknown): ApiError => {
   if (!axios.isAxiosError(error) || axios.isCancel(error)) {
     return { statusCode: null, error: null, isNetworkError: false };
