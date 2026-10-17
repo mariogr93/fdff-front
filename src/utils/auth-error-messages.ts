@@ -14,7 +14,10 @@ const MESSAGES = {
 } as const;
 
 export const SIGNUP_SUCCESS_MESSAGE =
-  "Solicitud enviada. Su cuenta debe ser aprobada antes de ingresar.";
+  "Solicitud enviada. Cuando su cuenta sea aprobada, podrá ingresar y completar su perfil.";
+
+/** An admin-created account starts ACTIVE. */
+export const ADMIN_CREATED_ACCOUNT_MESSAGE = "Cuenta creada. El juez ya puede ingresar.";
 
 /** Messages shared by login and signup, or null when the caller decides. */
 const commonMessage = ({ statusCode, error, isNetworkError }: ApiError): string | null => {

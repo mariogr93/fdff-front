@@ -3,10 +3,10 @@ import type {
   RegisterRequest,
 } from "../types/authentication.models";
 import type { SignupFormOutput } from "../schemas/signup.schema";
+import type { ProfileFormOutput } from "../schemas/profile.schema";
 
 /**
  * Maps validated + sanitized form values to the NestJS RegisterAccountDto shape.
- * Profile fields (name, phone, etc.) are intentionally excluded until the API supports them.
  * `role` is not sent: public signup always creates an ATHLETE. Judges are created by an
  * admin through `POST /accounts`.
  */
@@ -29,10 +29,10 @@ export function toCreateAccountRequest(
 }
 
 /**
- * Athlete profile data collected in Phase 1 UI but not yet persisted by the API.
- * Keep separate so it can be sent to a future profile endpoint without touching auth logic.
+ * Athlete profile data for the future profile page; not sent anywhere yet.
+ * Kept apart from the auth payloads so it can go to a profile endpoint later.
  */
-export function toSignupProfileDraft(values: SignupFormOutput) {
+export function toSignupProfileDraft(values: ProfileFormOutput) {
   if (values.role !== "ATHLETE") {
     return null;
   }
