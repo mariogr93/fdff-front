@@ -19,11 +19,6 @@ type RetryableRequestConfig = InternalAxiosRequestConfig & {
   _retry?: boolean;
 };
 
-type QueueItem = {
-  resolve: (token: string) => void;
-  reject: (error: unknown) => void;
-};
-
 const getBaseUrl = () => {
   if (import.meta.env.VITE_API_BASE_URL) {
     return import.meta.env.VITE_API_BASE_URL;
@@ -40,21 +35,6 @@ const isPublicAuthRoute = (url?: string) =>
 const isLoginOrRegisterRoute = (url?: string) =>
   url?.includes("/auth/login") || url?.includes("/auth/register") || url?.includes("/auth/logout");
 
-let isRefreshing = false;
-let failedQueue: QueueItem[] = [];
-
-const processQueue = (error: unknown | null, token: string | null = null) => {
-  failedQueue.forEach(({ resolve, reject }) => {
-    if (error) {
-      reject(error);
-      return;
-    }
-
-    resolve(token!);
-  });
-  failedQueue = [];
-};
-
 /**
  * Dedicated client for token refresh — no auth interceptors to prevent loops.
  */
@@ -63,6 +43,51 @@ const refreshClient = axios.create({
   timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || "10000", 10),
   withCredentials: true,
 });
+
+/**
+ * The refresh cookie is single-use: two refreshes sent with the same cookie make one
+ * fail, and the backend may treat the late one as reuse and end the session. So:
+ * - within a tab, every caller (401 interceptor, page-load bootstrap, StrictMode's
+ *   second run) shares one in-flight promise;
+ * - across tabs, the Web Lock makes refreshes run one after another, so each tab
+ *   sends the cookie the previous one received.
+ * The lock wait is capped so a lock that is never released cannot hang the app.
+ */
+const REFRESH_LOCK_NAME = "fdff-refresh";
+const REFRESH_LOCK_WAIT_MS = 15_000;
+
+let refreshInFlight: Promise<LoginResponse> | null = null;
+
+const withRefreshLock = <T>(task: () => Promise<T>): Promise<T> => {
+  if (typeof navigator === "undefined" || !navigator.locks) {
+    return task();
+  }
+
+  return navigator.locks.request(
+    REFRESH_LOCK_NAME,
+    { signal: AbortSignal.timeout(REFRESH_LOCK_WAIT_MS) },
+    task
+  );
+};
+
+const requestRefresh = async (): Promise<LoginResponse> => {
+  const { data } = await refreshClient.post<LoginResponse>("/auth/refresh");
+  return data;
+};
+
+/** Exchanges the refresh cookie for a new session. At most one refresh runs per browser. */
+export const refreshSession = (): Promise<LoginResponse> => {
+  refreshInFlight ??= withRefreshLock(requestRefresh)
+    .then((data) => {
+      notifySessionRefreshed(data);
+      return data;
+    })
+    .finally(() => {
+      refreshInFlight = null;
+    });
+
+  return refreshInFlight;
+};
 
 const attachRequestInterceptor = (client: AxiosInstance) => {
   client.interceptors.request.use(
@@ -104,30 +129,15 @@ const attachResponseInterceptor = (client: AxiosInstance) => {
         return Promise.reject(error);
       }
 
-      if (isRefreshing) {
-        return new Promise<string>((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        }).then((token) => {
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          return client(originalRequest);
-        });
-      }
-
       originalRequest._retry = true;
-      isRefreshing = true;
 
       try {
-        const { data } = await refreshClient.post<LoginResponse>("/auth/refresh");
-        notifySessionRefreshed(data);
-        processQueue(null, data.accessToken);
-        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+        const { accessToken } = await refreshSession();
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return client(originalRequest);
       } catch (refreshError) {
-        processQueue(refreshError, null);
         notifyAuthFailure();
         return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
       }
     }
   );

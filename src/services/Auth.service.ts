@@ -1,4 +1,4 @@
-import { apiClient } from "../config/api";
+import { apiClient, refreshSession } from "../config/api";
 import { parseApiError } from "../config/api-error";
 import {
   LoginRequest,
@@ -34,13 +34,13 @@ export const AuthService = {
   },
 
   /**
-   * Exchange the HttpOnly refresh cookie for a new access token.
+   * Exchange the HttpOnly refresh cookie for a new access token. Shares the single
+   * in-flight refresh with the 401 interceptor (see refreshSession in config/api.ts).
    * 401 is expected when there is no session (e.g. bootstrap on a logged-out visit).
    */
   refresh: async (): Promise<RefreshResponse> => {
     try {
-      const response = await apiClient.post<RefreshResponse>("/auth/refresh");
-      return response.data;
+      return await refreshSession();
     } catch (error) {
       if (parseApiError(error).statusCode !== 401) {
         console.error("❌ Error in AuthService.refresh", error);
