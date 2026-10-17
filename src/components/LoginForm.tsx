@@ -9,6 +9,8 @@ import {
   type LoginFormValues,
 } from "../schemas/login.schema";
 import { toLoginRequest } from "../utils/login.mapper";
+import { loginErrorMessage } from "../utils/auth-error-messages";
+import { parseApiError } from "../config/api-error";
 import type { LoginRequest } from "../types/authentication.models";
 
 interface LoginFormProps {
@@ -38,10 +40,8 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
 
     try {
       await onSubmit(toLoginRequest(values));
-    } catch {
-      setSubmitError(
-        "No se pudo iniciar sesión. Verifique sus credenciales e intente de nuevo."
-      );
+    } catch (error) {
+      setSubmitError(loginErrorMessage(parseApiError(error)));
     }
   };
 
@@ -110,7 +110,9 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
       </div>
 
       {submitError && (
-        <p className="w-full text-sm text-red-600 text-center">{submitError}</p>
+        <p role="alert" className="w-full text-sm text-red-600 text-center">
+          {submitError}
+        </p>
       )}
 
       <div className="w-full flex flex-row items-center justify-center gap-2">

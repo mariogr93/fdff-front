@@ -16,6 +16,11 @@ import {
   toSignupProfileDraft,
 } from "../utils/signup.mapper";
 import { useAuth } from "../context/use-auth";
+import { parseApiError } from "../config/api-error";
+import {
+  SIGNUP_SUCCESS_MESSAGE,
+  signupErrorMessage,
+} from "../utils/auth-error-messages";
 import type {
   CreateAccountRequest,
   RegisterRequest,
@@ -31,6 +36,7 @@ export const SigninForm = ({ onRegister, onCreateAccount }: SigninFormProps) => 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
 
   const navigate = useNavigate();
   const { role: sessionRole } = useAuth();
@@ -70,6 +76,7 @@ export const SigninForm = ({ onRegister, onCreateAccount }: SigninFormProps) => 
 
   const onSubmit = async (values: SignupFormOutput) => {
     setSubmitError(null);
+    setSubmitSuccess(null);
 
     const profileDraft = toSignupProfileDraft(values);
 
@@ -85,10 +92,9 @@ export const SigninForm = ({ onRegister, onCreateAccount }: SigninFormProps) => 
       } else {
         await onRegister(toRegisterRequest(values));
       }
-    } catch {
-      setSubmitError(
-        "No se pudo crear la cuenta. Verifique sus datos e intente de nuevo."
-      );
+      setSubmitSuccess(SIGNUP_SUCCESS_MESSAGE);
+    } catch (error) {
+      setSubmitError(signupErrorMessage(parseApiError(error)));
     }
   };
 
@@ -405,7 +411,15 @@ export const SigninForm = ({ onRegister, onCreateAccount }: SigninFormProps) => 
       )}
 
       {submitError && (
-        <p className="w-full text-sm text-red-600 text-center">{submitError}</p>
+        <p role="alert" className="w-full text-sm text-red-600 text-center">
+          {submitError}
+        </p>
+      )}
+
+      {submitSuccess && (
+        <p role="status" className="w-full text-sm text-green-700 text-center">
+          {submitSuccess}
+        </p>
       )}
 
       <div className="w-full flex flex-row items-center justify-center gap-2">
