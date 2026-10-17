@@ -9,6 +9,7 @@ import {
   notifySessionRefreshed,
 } from "../auth/auth-session.store";
 import type { LoginResponse } from "../types/authentication.models";
+import { parseApiError } from "./api-error";
 
 export interface ApiConfig {
   baseURL: string;
@@ -136,7 +137,11 @@ const attachResponseInterceptor = (client: AxiosInstance) => {
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return client(originalRequest);
       } catch (refreshError) {
-        notifyAuthFailure();
+        // Only a 401 means the session is over. A network error or lock timeout
+        // leaves the session in place so the next call can try again.
+        if (parseApiError(refreshError).statusCode === 401) {
+          notifyAuthFailure();
+        }
         return Promise.reject(refreshError);
       }
     }

@@ -7,6 +7,8 @@ import {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  getAccessToken,
+  onLogoutInOtherTab,
   registerAuthLifecycleHandlers,
   setAccessToken,
   type SessionRefreshPayload,
@@ -49,6 +51,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     });
   }, [navigate]);
+
+  // Another tab signed out. Only a tab that had a session is sent to the login page;
+  // a signed-out visitor on a public page stays where they are.
+  useEffect(
+    () =>
+      onLogoutInOtherTab(() => {
+        if (getAccessToken() === null) {
+          return;
+        }
+
+        setAccessToken(null);
+        setSessionState(null);
+        navigate("/login", { replace: true });
+      }),
+    [navigate]
+  );
 
   // Restore session from HttpOnly refresh cookie after a full page reload.
   // Memory was wiped; the cookie may still be valid.

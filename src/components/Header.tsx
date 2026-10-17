@@ -4,6 +4,7 @@ import { useAuth } from "../context/use-auth";
 import { Navbar } from "./Navbar";
 import { XIcon, MenuIcon } from "lucide-react";
 import { AuthService } from "../services/Auth.service";
+import { broadcastLogout } from "../auth/auth-session.store";
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ export const Header = () => {
       console.error("❌ Error in Header.handleLogout", error);
     } finally {
       clearSession();
+      broadcastLogout();
       navigate("/");
     } 
   };
