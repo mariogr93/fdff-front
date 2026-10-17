@@ -91,7 +91,9 @@ src/
 - Derive state instead of syncing it with `useEffect`; use effects only for real side effects.
 - Public pages and registration are mobile-first (360 px). Admin pages are designed at 1280 px and must still work at 360 px.
 
-## Known gaps
+## Not built yet
+
+Planned hardening lives in `docs/NEXT-FEATURES.md`; delete an entry when it ships.
 
 - **`LoginForm`, `SigninForm` and `AuthPage` are still light-themed** and listed in `PENDING_REDESIGN` in `scripts/lint-tokens.mjs`, so the token check skips them. Converting them is a visual redesign. Remove each entry as it is done; never add to the list.
 - **No i18n.** Spanish strings are inline in components. The rule in `docs/design/content.md` (every string through `react-i18next`) is the target, not the current state.
