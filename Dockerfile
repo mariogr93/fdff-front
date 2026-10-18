@@ -1,5 +1,5 @@
 # --- Development ---
-FROM node:22-alpine AS development
+FROM node:24-alpine AS development
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ EXPOSE 5173
 CMD ["sh", "-c", "npm ci && npm run dev -- --host 0.0.0.0 --port 5173"]
 
 # --- Build ---
-FROM node:22-alpine AS builder
+FROM node:24-alpine AS builder
 
 WORKDIR /app
 
