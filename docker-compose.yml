@@ -5,7 +5,8 @@ services:
       dockerfile: Dockerfile
       target: production
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+        # Empty: the app calls /api on its own origin. Set it only for a cross-origin API.
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-}
     container_name: fdff_web
     restart: always
     ports:
@@ -21,7 +22,6 @@ services:
     container_name: fdff_web_dev
     restart: unless-stopped
     environment:
-      VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
       # Vite runs inside this container; reach the API via the host-mapped port.
       VITE_PROXY_TARGET: ${VITE_PROXY_TARGET:-http://host.docker.internal:3000}
     extra_hosts:

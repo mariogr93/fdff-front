@@ -22,8 +22,9 @@ RUN npm ci
 
 COPY . .
 
-ARG VITE_API_URL
-ENV VITE_API_URL=$VITE_API_URL
+# Empty means the app calls /api on its own origin (same-origin production setup).
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
 RUN npm run build
 
