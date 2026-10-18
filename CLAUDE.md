@@ -68,19 +68,21 @@ src/
 ├── config/           # api.ts — Axios clients, interceptors, refresh queue
 ├── schemas/          # Zod schemas
 ├── utils/            # mappers and helpers
-└── types/            # hand-written API request/response types
+└── types/            # API types mapped by hand from the backend OpenAPI spec
 ```
 
 **Target state, not yet adopted:** the design docs describe a `features/<feature>/` layout with per-feature `api/`, `components/`, `schemas/` and `pages/`. Don't restructure toward it as a side effect of another task.
 
 ## API notes
 
-- `apiClient` in `src/config/api.ts` is the shared Axios client: it attaches the Bearer token and silently refreshes once on a 401. `uploadApiClient` is a longer-timeout twin for future file uploads and currently has no importers.
-- Use those clients for authenticated calls. Don't create a new Axios instance or use raw `fetch`.
-- Public auth paths (no Bearer attached): `/auth/login`, `/auth/register`, `/auth/refresh`, `/auth/logout`.
-- The access token lives in memory only (`src/auth/auth-session.store.ts`); the refresh token is an HttpOnly cookie the browser sends automatically. Never put either in `localStorage`.
-- **The 401 contract matters.** The interceptor treats exactly 401 as "try refreshing". If an endpoint starts returning 403 for an expired session, the refresh flow silently stops working.
-- API types are hand-written in `src/types/`. The backend has no OpenAPI spec, so there is nothing to generate from; adding `@nestjs/swagger` there is a separate task.
+- **Contract:** `../fdff-backend/docs/README-IAM.md` section 14 (transport, session lifecycle, response and error shapes, field rules). Client-side auth design: `docs/auth.md`.
+- `apiClient` in `src/config/api.ts` is the shared Axios client: it attaches the Bearer token and refreshes once on a 401. `uploadApiClient` is a longer-timeout twin with no importers; the backend accepts JSON bodies only, so uploads need a backend route first.
+- Use those clients for every API call. Don't create a new Axios instance or use raw `fetch`.
+- The access token lives only in `src/auth/auth-session.store.ts`. Components use `useAuth()` (identity, `login()`, `logout()`) and never see the token. Never put tokens in `localStorage` or `sessionStorage`.
+- Refreshes go through `refreshSession()` only: one per browser (shared promise + Web Lock), because the refresh cookie is single-use. Logout and a refresh 401 end the session in every tab.
+- Branch on `parseApiError()` (`statusCode`, `error`), never on `message`; log with `logApiError()` only.
+- **The 401 contract matters.** Only 401 triggers a refresh. If an endpoint starts returning 403 for an expired session, the refresh flow silently stops working.
+- API types in `src/types/authentication.models.ts` are mapped by hand from `/api/docs-json` (development only). When a backend DTO changes, update the matching type; never add fields the spec lacks.
 
 ## Code conventions
 
@@ -97,8 +99,7 @@ Planned hardening lives in `docs/NEXT-FEATURES.md`; delete an entry when it ship
 
 - **`LoginForm`, `SigninForm` and `AuthPage` are still light-themed** and listed in `PENDING_REDESIGN` in `scripts/lint-tokens.mjs`, so the token check skips them. Converting them is a visual redesign. Remove each entry as it is done; never add to the list.
 - **No i18n.** Spanish strings are inline in components. The rule in `docs/design/content.md` (every string through `react-i18next`) is the target, not the current state.
-- **No route guards.** `Routes.tsx` has no role protection, so `/jueces` is publicly reachable. `JudgesPage` also links to `/create-competition` and `/create-category`, which are not registered routes.
-- **Routes don't match the spec.** `docs/design/pages.md` specifies `/inscripcion`, `/ingresar` and `/panel/*`; the app currently uses `/login`, `/register`, `/eventos`, `/atletas`, `/rankings`, `/jueces`, `/federacion`.
+- **Routes partly match the spec.** `/panel/*` (guarded with `RequireRole`) and the public `/jueces` follow `docs/design/pages.md`; login and signup are still `/login` and `/register` instead of `/ingresar` and `/inscripcion`. Panel pages and the judges directory are "Próximamente" placeholders.
 
 ## Documentation map
 
@@ -113,7 +114,7 @@ Planned hardening lives in `docs/NEXT-FEATURES.md`; delete an entry when it ship
 | Routes, access by role, page flows | `docs/design/pages.md` |
 | Spanish copy, tone, glossary | `docs/design/content.md` |
 | Accessibility checklist | `docs/design/accessibility.md` |
-| Auth flow across both repos | `docs/auth-flow.md`, `docs/ai-auth-context.md` |
+| Auth (client side; contract in backend README-IAM section 14) | `docs/auth.md` |
 | Where the project stands | `docs/project-status.md` |
 
 Read only what the task needs; don't load the whole `docs/` folder.
