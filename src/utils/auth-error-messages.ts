@@ -11,7 +11,13 @@ const MESSAGES = {
   emailUnavailable: "No se puede usar este correo. Intente con otro.",
   tooManyAttempts: "Demasiados intentos. Espere unos minutos e inténtelo de nuevo.",
   serverUnavailable: "No se pudo conectar con el servidor. Inténtelo más tarde.",
+  currentPasswordIncorrect: "La contraseña actual no es correcta.",
+  newPasswordUnchanged: "La nueva contraseña debe ser distinta a la actual.",
+  changePasswordFailed: "No se pudo cambiar la contraseña. Revise sus datos e inténtelo de nuevo.",
 } as const;
+
+export const CHANGE_PASSWORD_SUCCESS_MESSAGE =
+  "Contraseña actualizada. Inicie sesión con su nueva contraseña.";
 
 export const SIGNUP_SUCCESS_MESSAGE =
   "Solicitud enviada. Cuando su cuenta sea aprobada, podrá ingresar y completar su perfil.";
@@ -40,6 +46,19 @@ const commonMessage = ({ statusCode, error, isNetworkError }: ApiError): string 
 
 export const loginErrorMessage = (apiError: ApiError): string =>
   commonMessage(apiError) ?? MESSAGES.loginFailed;
+
+/** A wrong current password is a 400, not a 401: the session is still valid. */
+export const changePasswordErrorMessage = (apiError: ApiError): string => {
+  if (apiError.error === "CurrentPasswordIncorrectException") {
+    return MESSAGES.currentPasswordIncorrect;
+  }
+
+  if (apiError.error === "NewPasswordUnchangedException") {
+    return MESSAGES.newPasswordUnchanged;
+  }
+
+  return commonMessage(apiError) ?? MESSAGES.changePasswordFailed;
+};
 
 export const signupErrorMessage = (apiError: ApiError): string =>
   commonMessage(apiError) ??

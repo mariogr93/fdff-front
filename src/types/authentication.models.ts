@@ -50,6 +50,15 @@ export interface CreateAccountRequest {
   role: AccountRole;
 }
 
+/**
+ * `ChangePasswordDto`: body of `POST /auth/change-password`. The answer is `204`
+ * with no body: every session of the account has ended, so sign in again.
+ */
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
 /** `AccountsPageResponseDto`: `200` of `GET /accounts` (ADMIN only). */
 export interface AccountsPageResponse {
   data: AccountResponse[];

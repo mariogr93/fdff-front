@@ -8,6 +8,7 @@ import { FederationPage } from "./pages/FederationPage"
 import { NotFoundPage } from "./pages/NotFoundPage"
 import { HomePage } from "./pages/HomePage"
 import { AuthPage } from "./pages/AuthPage"
+import { ChangePasswordPage } from "./pages/ChangePasswordPage"
 import { PanelPage } from "./pages/PanelPage"
 import { ComingSoon } from "./components/ComingSoon"
 import { RequireRole } from "./components/RequireRole"
@@ -15,6 +16,7 @@ import type { AccountRole } from "./types/authentication.models"
 
 const PANEL_ROLES: readonly AccountRole[] = ["JUDGE", "ADMIN"]
 const ADMIN_ONLY: readonly AccountRole[] = ["ADMIN"]
+const ALL_ROLES: readonly AccountRole[] = ["ADMIN", "JUDGE", "ATHLETE"]
 
 export const FDFFRoutes = () => {
   return (
@@ -38,6 +40,9 @@ export const FDFFRoutes = () => {
               </RequireRole>
             }
           />
+        </Route>
+        <Route path="cuenta/contrasena" element={<RequireRole roles={ALL_ROLES} />}>
+          <Route index element={<ChangePasswordPage />} />
         </Route>
         <Route path="login" element={<AuthPage />} />
         <Route path="register" element={<AuthPage />} />

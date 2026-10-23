@@ -1,6 +1,7 @@
 import { apiClient, refreshSession } from "../config/api";
 import { logApiError, parseApiError } from "../config/api-error";
 import {
+  ChangePasswordRequest,
   LoginRequest,
   LoginResponse,
   RefreshResponse,
@@ -25,6 +26,16 @@ export const AuthService = {
       return response.data;
     } catch (error) {
       logApiError("register", error);
+      throw error;
+    }
+  },
+
+  /** `204`: the backend ended every session, this one included. */
+  changePassword: async (request: ChangePasswordRequest): Promise<void> => {
+    try {
+      await apiClient.post<void>("/auth/change-password", request);
+    } catch (error) {
+      logApiError("change-password", error);
       throw error;
     }
   },

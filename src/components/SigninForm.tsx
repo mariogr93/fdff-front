@@ -1,6 +1,6 @@
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import {
@@ -43,7 +43,8 @@ export const SigninForm = ({ onRegister, onCreateAccount }: SigninFormProps) => 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    control,
+    formState: { errors, isSubmitting, isValid },
   } = useForm<SignupFormValues, unknown, SignupFormOutput>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -52,8 +53,13 @@ export const SigninForm = ({ onRegister, onCreateAccount }: SigninFormProps) => 
       password: "",
       confirmPassword: "",
     },
-    mode: "onBlur",
+    // Live validation: the mismatch warning and the submit button react per keystroke.
+    mode: "onChange",
   });
+
+  const password = useWatch({ control, name: "password" });
+  const confirmPassword = useWatch({ control, name: "confirmPassword" });
+  const passwordsMismatch = confirmPassword !== "" && password !== confirmPassword;
 
   const onSubmit = async (values: SignupFormOutput) => {
     setSubmitError(null);
@@ -74,7 +80,9 @@ export const SigninForm = ({ onRegister, onCreateAccount }: SigninFormProps) => 
   };
 
   const fieldError = (name: keyof SignupFormValues) =>
-    errors[name]?.message as string | undefined;
+    name === "confirmPassword" && passwordsMismatch
+      ? "Las contraseñas no coinciden. Ambas deben ser iguales."
+      : (errors[name]?.message as string | undefined);
 
   return (
     <form
@@ -215,8 +223,8 @@ export const SigninForm = ({ onRegister, onCreateAccount }: SigninFormProps) => 
       <div className="w-full flex flex-row items-center justify-center gap-2">
         <button
           type="submit"
-          disabled={isSubmitting}
-          className="w-1/4 bg-blue-500 text-white p-2 rounded-md disabled:opacity-60"
+          disabled={!isValid || passwordsMismatch || isSubmitting}
+          className="w-1/4 bg-blue-500 text-white p-2 rounded-md disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {isSubmitting ? "Creando..." : "Crear cuenta"}
         </button>

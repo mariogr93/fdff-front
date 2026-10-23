@@ -31,6 +31,12 @@ export const Header = () => {
           isAuthenticated ? (
           <div className="flex items-center justify-center gap-2">
             <button
+              className="text-ink bg-surface border-1 mr-2 border-line px-4 h-10 rounded-sm hover:bg-surface-raised cursor-pointer"
+              onClick={() => navigate("/cuenta/contrasena")}
+            >
+              Contraseña
+            </button>
+            <button
               className="text-ink bg-surface border-1 mr-2 border-line w-25 h-10 px-4 py-2 rounded-sm hover:bg-surface-raised cursor-pointer"
               onClick={handleLogout}
             >
