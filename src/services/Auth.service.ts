@@ -2,6 +2,7 @@ import { apiClient, refreshSession } from "../config/api";
 import { logApiError, parseApiError } from "../config/api-error";
 import {
   ChangePasswordRequest,
+  ForgotPasswordRequest,
   LoginRequest,
   LoginResponse,
   RefreshResponse,
@@ -26,6 +27,16 @@ export const AuthService = {
       return response.data;
     } catch (error) {
       logApiError("register", error);
+      throw error;
+    }
+  },
+
+  /** Always `202` for a valid email, whether or not it is registered. */
+  forgotPassword: async (request: ForgotPasswordRequest): Promise<void> => {
+    try {
+      await apiClient.post<void>("/auth/forgot-password", request);
+    } catch (error) {
+      logApiError("forgot-password", error);
       throw error;
     }
   },

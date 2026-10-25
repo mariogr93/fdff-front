@@ -13,6 +13,8 @@ import type { ChangePasswordRequest } from "../types/authentication.models";
 
 interface ChangePasswordFormProps {
   onSubmit: (request: ChangePasswordRequest) => Promise<void> | void;
+  /** "Contraseña temporal" when the session was opened with one. */
+  currentPasswordLabel?: string;
 }
 
 type PasswordField = keyof ChangePasswordFormValues;
@@ -30,7 +32,10 @@ const FIELDS: ReadonlyArray<{
 const INPUT_CLASS =
   "w-full bg-canvas text-ink border-1 border-line rounded-sm p-2 pr-10 focus:border-brand-light";
 
-export const ChangePasswordForm = ({ onSubmit }: ChangePasswordFormProps) => {
+export const ChangePasswordForm = ({
+  onSubmit,
+  currentPasswordLabel = "Contraseña actual",
+}: ChangePasswordFormProps) => {
   const [visible, setVisible] = useState<Partial<Record<PasswordField, boolean>>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -76,7 +81,8 @@ export const ChangePasswordForm = ({ onSubmit }: ChangePasswordFormProps) => {
       noValidate
       className="flex flex-col gap-4 w-full"
     >
-      {FIELDS.map(({ name, label, autoComplete }) => {
+      {FIELDS.map(({ name, label: defaultLabel, autoComplete }) => {
+        const label = name === "currentPassword" ? currentPasswordLabel : defaultLabel;
         const error = fieldError(name);
         const isVisible = visible[name] === true;
 

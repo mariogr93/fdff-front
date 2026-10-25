@@ -30,7 +30,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const startSession = useCallback((session: LoginResponse) => {
     setAccessToken(session.accessToken);
-    setIdentity({ accountId: session.accountId, role: session.role });
+    setIdentity({
+      accountId: session.accountId,
+      role: session.role,
+      mustChangePassword: session.mustChangePassword,
+    });
   }, []);
 
   const endSession = useCallback(() => {
@@ -41,11 +45,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     registerAuthLifecycleHandlers({
       onSessionRefreshed: (payload: SessionRefreshPayload) => {
-        setIdentity({ accountId: payload.accountId, role: payload.role });
+        setIdentity({
+          accountId: payload.accountId,
+          role: payload.role,
+          mustChangePassword: payload.mustChangePassword,
+        });
       },
       onAuthFailure: () => {
         endSession();
         navigate("/login", { replace: true });
+      },
+      // A stale flag (e.g. set in another tab): PasswordChangeGate redirects.
+      onPasswordChangeRequired: () => {
+        setIdentity((current) =>
+          current ? { ...current, mustChangePassword: true } : current
+        );
       },
     });
   }, [navigate, endSession]);
@@ -112,6 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       accountId: identity?.accountId ?? null,
       role: identity?.role ?? null,
+      mustChangePassword: identity?.mustChangePassword ?? false,
       isAuthenticated: identity !== null,
       isBootstrapping,
       login,

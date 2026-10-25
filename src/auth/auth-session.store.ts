@@ -11,11 +11,14 @@ export interface SessionRefreshPayload {
   accessToken: string;
   accountId: string;
   role: AccountRole;
+  mustChangePassword: boolean;
 }
 
 export interface AuthLifecycleHandlers {
   onSessionRefreshed: (session: SessionRefreshPayload) => void;
   onAuthFailure: () => void;
+  /** The API answered 403 PasswordChangeRequiredException: the session is restricted. */
+  onPasswordChangeRequired: () => void;
 }
 
 let lifecycleHandlers: AuthLifecycleHandlers | null = null;
@@ -37,6 +40,10 @@ export function registerAuthLifecycleHandlers(
 export function notifySessionRefreshed(session: SessionRefreshPayload): void {
   setAccessToken(session.accessToken);
   lifecycleHandlers?.onSessionRefreshed(session);
+}
+
+export function notifyPasswordChangeRequired(): void {
+  lifecycleHandlers?.onPasswordChangeRequired();
 }
 
 /** The session ended for good (refresh answered 401): sign out here and in other tabs. */

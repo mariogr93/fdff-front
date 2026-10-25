@@ -6,6 +6,7 @@ import axios, {
 import {
   getAccessToken,
   notifyAuthFailure,
+  notifyPasswordChangeRequired,
   notifySessionRefreshed,
 } from "../auth/auth-session.store";
 import type { LoginResponse } from "../types/authentication.models";
@@ -28,7 +29,13 @@ const getBaseUrl = () => {
   return "/api";
 };
 
-const PUBLIC_AUTH_PATHS = ["/auth/login", "/auth/logout", "/auth/register", "/auth/refresh"];
+const PUBLIC_AUTH_PATHS = [
+  "/auth/login",
+  "/auth/logout",
+  "/auth/register",
+  "/auth/refresh",
+  "/auth/forgot-password",
+];
 
 const isPublicAuthRoute = (url?: string) =>
   PUBLIC_AUTH_PATHS.some((path) => url?.includes(path));
@@ -114,6 +121,13 @@ const attachResponseInterceptor = (client: AxiosInstance) => {
     (response) => response,
     async (error: AxiosError) => {
       const originalRequest = error.config as RetryableRequestConfig | undefined;
+
+      // Restricted session (signed in with a temporary password): send the
+      // person to the change-password page instead of showing an error.
+      if (parseApiError(error).error === "PasswordChangeRequiredException") {
+        notifyPasswordChangeRequired();
+        return Promise.reject(error);
+      }
 
       if (!error.response || error.response.status !== 401 || !originalRequest) {
         return Promise.reject(error);

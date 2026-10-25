@@ -2,7 +2,7 @@ import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   loginSchema,
   type LoginFormOutput,
@@ -108,6 +108,13 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
           <p className="w-full text-sm text-red-600">{fieldError("password")}</p>
         )}
       </div>
+
+      <Link
+        to="/recuperar-contrasena"
+        className="w-full text-small text-brand-light underline"
+      >
+        ¿Olvidó su contraseña?
+      </Link>
 
       {submitError && (
         <p role="alert" className="w-full text-sm text-red-600 text-center">

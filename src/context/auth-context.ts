@@ -8,11 +8,14 @@ import type {
 export interface AuthIdentity {
   accountId: string;
   role: AccountRole;
+  /** Signed in with a temporary password: only the change-password page is usable. */
+  mustChangePassword: boolean;
 }
 
 export interface AuthContextValue {
   accountId: string | null;
   role: AccountRole | null;
+  mustChangePassword: boolean;
   isAuthenticated: boolean;
   isBootstrapping: boolean;
   /** Signs in; rejects with the API error so the form can show a message. */

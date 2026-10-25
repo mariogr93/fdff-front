@@ -14,7 +14,14 @@ const MESSAGES = {
   currentPasswordIncorrect: "La contraseña actual no es correcta.",
   newPasswordUnchanged: "La nueva contraseña debe ser distinta a la actual.",
   changePasswordFailed: "No se pudo cambiar la contraseña. Revise sus datos e inténtelo de nuevo.",
+  temporaryPasswordAlreadyUsed:
+    "Su contraseña temporal ya había sido usada y no se cambió, por lo que su cuenta fue desactivada. Contacte a un administrador.",
+  forgotPasswordFailed: "No se pudo enviar la solicitud. Inténtelo de nuevo.",
 } as const;
+
+/** Same text for every address: never reveal whether one is registered. */
+export const FORGOT_PASSWORD_SENT_MESSAGE =
+  "Si el correo pertenece a una cuenta activa, le enviamos una contraseña temporal. Revise su bandeja de entrada.";
 
 export const CHANGE_PASSWORD_SUCCESS_MESSAGE =
   "Contraseña actualizada. Inicie sesión con su nueva contraseña.";
@@ -44,8 +51,17 @@ const commonMessage = ({ statusCode, error, isNetworkError }: ApiError): string 
   return null;
 };
 
+/**
+ * The backend tells TemporaryPasswordAlreadyUsed only to someone who proved the
+ * temporary password, so naming it here reveals nothing to a stranger.
+ */
 export const loginErrorMessage = (apiError: ApiError): string =>
-  commonMessage(apiError) ?? MESSAGES.loginFailed;
+  apiError.error === "TemporaryPasswordAlreadyUsedException"
+    ? MESSAGES.temporaryPasswordAlreadyUsed
+    : (commonMessage(apiError) ?? MESSAGES.loginFailed);
+
+export const forgotPasswordErrorMessage = (apiError: ApiError): string =>
+  commonMessage(apiError) ?? MESSAGES.forgotPasswordFailed;
 
 /** A wrong current password is a 400, not a 401: the session is still valid. */
 export const changePasswordErrorMessage = (apiError: ApiError): string => {

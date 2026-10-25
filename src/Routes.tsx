@@ -9,6 +9,7 @@ import { NotFoundPage } from "./pages/NotFoundPage"
 import { HomePage } from "./pages/HomePage"
 import { AuthPage } from "./pages/AuthPage"
 import { ChangePasswordPage } from "./pages/ChangePasswordPage"
+import { ForgotPasswordPage } from "./pages/ForgotPasswordPage"
 import { PanelPage } from "./pages/PanelPage"
 import { ComingSoon } from "./components/ComingSoon"
 import { RequireRole } from "./components/RequireRole"
@@ -44,6 +45,7 @@ export const FDFFRoutes = () => {
         <Route path="cuenta/contrasena" element={<RequireRole roles={ALL_ROLES} />}>
           <Route index element={<ChangePasswordPage />} />
         </Route>
+        <Route path="recuperar-contrasena" element={<ForgotPasswordPage />} />
         <Route path="login" element={<AuthPage />} />
         <Route path="register" element={<AuthPage />} />
         <Route path="*" element={<NotFoundPage />} />

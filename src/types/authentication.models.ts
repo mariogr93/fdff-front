@@ -19,6 +19,16 @@ export interface LoginResponse {
   accessToken: string;
   accountId: string;
   role: AccountRole;
+  /**
+   * True after a sign-in with a temporary password: the backend answers 403
+   * `PasswordChangeRequiredException` everywhere except change-password.
+   */
+  mustChangePassword: boolean;
+}
+
+/** `ForgotPasswordDto`: body of `POST /auth/forgot-password`. Always `202`, no body. */
+export interface ForgotPasswordRequest {
+  email: string;
 }
 
 export type RefreshResponse = LoginResponse;
